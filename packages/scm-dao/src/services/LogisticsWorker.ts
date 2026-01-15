@@ -1,5 +1,5 @@
-import { Worker } from '../primitives/Worker';
-import { Ledger, LedgerSubsections } from '../primitives/Ledger';
+import { Worker } from "../primitives/Worker";
+import { Ledger, LedgerSubsections } from "../primitives/Ledger";
 
 interface LogisticsInput {
   PurchaseOrder?: any;
@@ -22,21 +22,21 @@ export class LogisticsWorker extends Worker<LogisticsInput, ShipmentPlan> {
   private ledger: Ledger;
 
   constructor(ledger: Ledger) {
-    super('LogisticsWorker');
+    super("LogisticsWorker");
     this.ledger = ledger;
   }
 
   protected async process(input: LogisticsInput): Promise<ShipmentPlan> {
     const { PurchaseOrder, Capacity } = input;
-    
+
     // Create shipment plan
     const shipmentPlan: ShipmentPlan = {
       shipmentId: `SH-${Date.now()}`,
-      orderId: PurchaseOrder?.orderId || 'UNKNOWN',
+      orderId: PurchaseOrder?.orderId || "UNKNOWN",
       route: this.calculateRoute(PurchaseOrder),
       estimatedArrival: PurchaseOrder?.expectedDelivery || new Date(),
       carrier: this.selectCarrier(Capacity),
-      trackingNumber: `TRK-${Date.now()}`
+      trackingNumber: `TRK-${Date.now()}`,
     };
 
     return shipmentPlan;
@@ -48,13 +48,13 @@ export class LogisticsWorker extends Worker<LogisticsInput, ShipmentPlan> {
       .write(output.shipmentId, output);
   }
 
-  private calculateRoute(purchaseOrder: any): string[] {
+  private calculateRoute(_purchaseOrder: any): string[] {
     // Simplified routing logic
-    return ['Origin', 'Hub', 'Destination'];
+    return ["Origin", "Hub", "Destination"];
   }
 
-  private selectCarrier(capacity: any): string {
+  private selectCarrier(_capacity: any): string {
     // Simplified carrier selection
-    return 'CARRIER_A';
+    return "CARRIER_A";
   }
 }

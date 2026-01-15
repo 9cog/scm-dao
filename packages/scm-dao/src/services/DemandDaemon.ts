@@ -1,6 +1,6 @@
-import { Daemon } from '../primitives/Daemon';
-import { Ledger, LedgerSubsections } from '../primitives/Ledger';
-import { Event, Signal } from '../types';
+import { Daemon } from "../primitives/Daemon";
+import { Ledger, LedgerSubsections } from "../primitives/Ledger";
+import { Event, Signal } from "../types";
 
 /**
  * DemandDaemon - watches sales velocity and market signals
@@ -9,13 +9,13 @@ export class DemandDaemon extends Daemon {
   private ledger: Ledger;
 
   constructor(ledger: Ledger) {
-    super('DemandDaemon');
+    super("DemandDaemon");
     this.ledger = ledger;
   }
 
   protected async onStart(): Promise<void> {
-    this.watch('SalesVelocity', (event) => this.handleSalesVelocity(event));
-    this.watch('MarketSignal', (event) => this.handleMarketSignal(event));
+    this.watch("SalesVelocity", (event) => this.handleSalesVelocity(event));
+    this.watch("MarketSignal", (event) => this.handleMarketSignal(event));
   }
 
   protected async onStop(): Promise<void> {
@@ -28,14 +28,14 @@ export class DemandDaemon extends Daemon {
 
   private handleSalesVelocity(event: Event): void {
     const { sku, velocity, period } = event.payload;
-    
+
     // Calculate demand forecast
     const forecast = this.calculateForecast(velocity, period);
-    
+
     this.emit({
-      type: 'DemandForecast',
+      type: "DemandForecast",
       data: { sku, forecast, velocity, period },
-      metadata: { source: this.name, timestamp: Date.now() }
+      metadata: { source: this.name, timestamp: Date.now() },
     });
 
     // Update ledger
@@ -43,17 +43,19 @@ export class DemandDaemon extends Daemon {
       forecast,
       velocity,
       period,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
   private handleMarketSignal(event: Event): void {
     const { signal, impact } = event.payload;
-    this.ledger.subsection(LedgerSubsections.Forecasts).write('market_signals', {
-      signal,
-      impact,
-      timestamp: Date.now()
-    });
+    this.ledger
+      .subsection(LedgerSubsections.Forecasts)
+      .write("market_signals", {
+        signal,
+        impact,
+        timestamp: Date.now(),
+      });
   }
 
   private calculateForecast(velocity: number, period: number): number {
@@ -61,7 +63,7 @@ export class DemandDaemon extends Daemon {
     return velocity * period * 1.1; // 10% buffer
   }
 
-  public injectEvent(event: Event): void {
+  injectEvent(event: Event): void {
     this.handleEvent(event);
   }
 }

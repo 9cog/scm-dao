@@ -1,4 +1,4 @@
-import { Signal } from '../types';
+import { Signal } from "../types";
 
 /**
  * Oracle primitive - boundary service to external reality

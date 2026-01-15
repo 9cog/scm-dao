@@ -12,86 +12,86 @@
 
 DOMAIN SupplyChainDAO {
 
-  // ─────────────────────────────────────────────
-  // 1. SERVICE PRIMITIVES
-  // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 1. SERVICE PRIMITIVES
+// ─────────────────────────────────────────────
 
-  PRIMITIVE Daemon      // long-lived, watchful, event-reactive
-  PRIMITIVE Worker      // short-lived, task-bound, deterministic
-  PRIMITIVE Supervisor  // health, escalation, arbitration
-  PRIMITIVE Orchestrator// flow composition, policy encoding
-  PRIMITIVE Ledger      // shared state, commitments, proofs
-  PRIMITIVE Oracle      // boundary service to external reality
+PRIMITIVE Daemon // long-lived, watchful, event-reactive
+PRIMITIVE Worker // short-lived, task-bound, deterministic
+PRIMITIVE Supervisor // health, escalation, arbitration
+PRIMITIVE Orchestrator// flow composition, policy encoding
+PRIMITIVE Ledger // shared state, commitments, proofs
+PRIMITIVE Oracle // boundary service to external reality
 
-  // ─────────────────────────────────────────────
-  // 2. CORE SERVICES (ROLE RENDERING)
-  // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 2. CORE SERVICES (ROLE RENDERING)
+// ─────────────────────────────────────────────
 
-  SERVICE InventoryDaemon : Daemon {
-    watches: [StockLevels, SKUEvents]
-    emits:   [ReorderSignal, OverstockSignal]
-    state:   Ledger.Inventory
-  }
+SERVICE InventoryDaemon : Daemon {
+watches: [StockLevels, SKUEvents]
+emits: [ReorderSignal, OverstockSignal]
+state: Ledger.Inventory
+}
 
-  SERVICE DemandDaemon : Daemon {
-    watches: [SalesVelocity, MarketSignals]
-    emits:   [DemandForecast]
-    state:   Ledger.Forecasts
-  }
+SERVICE DemandDaemon : Daemon {
+watches: [SalesVelocity, MarketSignals]
+emits: [DemandForecast]
+state: Ledger.Forecasts
+}
 
-  SERVICE SupplierOracle : Oracle {
-    ingests: [SupplierFeeds, LogisticsAPIs]
-    emits:   [LeadTimes, Pricing, Capacity]
-  }
+SERVICE SupplierOracle : Oracle {
+ingests: [SupplierFeeds, LogisticsAPIs]
+emits: [LeadTimes, Pricing, Capacity]
+}
 
-  SERVICE ProcurementWorker : Worker {
-    consumes: [ReorderSignal, DemandForecast, LeadTimes]
-    produces: [PurchaseOrder]
-    commits:  Ledger.Commitments
-  }
+SERVICE ProcurementWorker : Worker {
+consumes: [ReorderSignal, DemandForecast, LeadTimes]
+produces: [PurchaseOrder]
+commits: Ledger.Commitments
+}
 
-  SERVICE LogisticsWorker : Worker {
-    consumes: [PurchaseOrder, Capacity]
-    produces: [ShipmentPlan]
-    commits:  Ledger.Logistics
-  }
+SERVICE LogisticsWorker : Worker {
+consumes: [PurchaseOrder, Capacity]
+produces: [ShipmentPlan]
+commits: Ledger.Logistics
+}
 
-  SERVICE SettlementWorker : Worker {
-    consumes: [DeliveryProof]
-    produces: [PaymentInstruction]
-    commits:  Ledger.Financials
-  }
+SERVICE SettlementWorker : Worker {
+consumes: [DeliveryProof]
+produces: [PaymentInstruction]
+commits: Ledger.Financials
+}
 
-  // ─────────────────────────────────────────────
-  // 3. SUPERVISION & GOVERNANCE
-  // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 3. SUPERVISION & GOVERNANCE
+// ─────────────────────────────────────────────
 
-  SERVICE OperationsSupervisor : Supervisor {
-    monitors: [
-      InventoryDaemon,
-      DemandDaemon,
-      ProcurementWorker,
-      LogisticsWorker,
-      SettlementWorker
-    ]
-    onFailure: [
-      Retry,
-      Quarantine,
-      EscalateToDAO
-    ]
-  }
+SERVICE OperationsSupervisor : Supervisor {
+monitors: [
+InventoryDaemon,
+DemandDaemon,
+ProcurementWorker,
+LogisticsWorker,
+SettlementWorker
+]
+onFailure: [
+Retry,
+Quarantine,
+EscalateToDAO
+]
+}
 
-  SERVICE GovernanceDaemon : Daemon {
-    watches: [Ledger.All, ProposalEvents]
-    emits:   [PolicyUpdate]
-    authority: DAO.TokenWeighted
-  }
+SERVICE GovernanceDaemon : Daemon {
+watches: [Ledger.All, ProposalEvents]
+emits: [PolicyUpdate]
+authority: DAO.TokenWeighted
+}
 
-  // ─────────────────────────────────────────────
-  // 4. ORCHESTRATION (EMERGENT FLOW)
-  // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 4. ORCHESTRATION (EMERGENT FLOW)
+// ─────────────────────────────────────────────
 
-  ORCHESTRATION SupplyChainFlow : Orchestrator {
+ORCHESTRATION SupplyChainFlow : Orchestrator {
 
     flow Replenishment {
       InventoryDaemon.ReorderSignal
@@ -115,19 +115,20 @@ DOMAIN SupplyChainDAO {
       ReplaceableWorkers,
       PolicyHotSwap
     ]
-  }
 
-  // ─────────────────────────────────────────────
-  // 5. EMERGENT SYSTEM PROPERTIES
-  // ─────────────────────────────────────────────
+}
 
-  EMERGENCE {
-    Optimization      := LocalWorkerDecisions + GlobalLedgerSignals
-    Resilience        := Supervisor + StatelessWorkers
-    Autonomy          := Daemons + GovernanceFeedback
-    Transparency      := Ledger + DeterministicFlows
-    Evolvability      := Orchestrator + PolicyUpdates
-  }
+// ─────────────────────────────────────────────
+// 5. EMERGENT SYSTEM PROPERTIES
+// ─────────────────────────────────────────────
+
+EMERGENCE {
+Optimization := LocalWorkerDecisions + GlobalLedgerSignals
+Resilience := Supervisor + StatelessWorkers
+Autonomy := Daemons + GovernanceFeedback
+Transparency := Ledger + DeterministicFlows
+Evolvability := Orchestrator + PolicyUpdates
+}
 
 }
 
@@ -142,4 +143,3 @@ DOMAIN SupplyChainDAO {
 - The system “decides” nothing centrally—decisions precipitate from signal density.
 
 ### The Supply Chain DAO thus behaves as a self-tuning logistics organism, where policy is fluid, labor is modular, and trust is compiled into flow
-

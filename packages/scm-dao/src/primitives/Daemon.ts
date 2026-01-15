@@ -1,11 +1,11 @@
-import { Event, Signal } from '../types';
+import { Event, Signal } from "../types";
 
 /**
  * Base Daemon primitive - long-lived, watchful, event-reactive
  */
 export abstract class Daemon {
   protected name: string;
-  protected running: boolean = false;
+  protected running = false;
   protected listeners: Map<string, ((event: Event) => void)[]> = new Map();
 
   constructor(name: string) {
@@ -50,7 +50,7 @@ export abstract class Daemon {
    */
   protected handleEvent(event: Event): void {
     const handlers = this.listeners.get(event.type) || [];
-    handlers.forEach(handler => handler(event));
+    handlers.forEach((handler) => handler(event));
   }
 
   /**

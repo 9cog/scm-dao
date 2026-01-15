@@ -1,4 +1,4 @@
-import { Signal, Commitment } from '../types';
+import { Signal } from "../types";
 
 /**
  * Base Worker primitive - short-lived, task-bound, deterministic

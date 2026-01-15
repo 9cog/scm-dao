@@ -33,7 +33,7 @@ export interface LedgerEntry<T = any> {
 export interface Commitment<T = any> {
   id: string;
   data: T;
-  state: 'pending' | 'committed' | 'failed';
+  state: "pending" | "committed" | "failed";
   timestamp: number;
 }
 

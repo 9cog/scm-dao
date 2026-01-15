@@ -1,5 +1,3 @@
-import { Signal } from '../types';
-
 /**
  * Flow definition
  */

@@ -1,13 +1,12 @@
-import { Orchestrator, Flow } from './primitives/Orchestrator';
-import { Ledger } from './primitives/Ledger';
-import { InventoryDaemon } from './services/InventoryDaemon';
-import { DemandDaemon } from './services/DemandDaemon';
-import { SupplierOracle } from './services/SupplierOracle';
-import { ProcurementWorker } from './services/ProcurementWorker';
-import { LogisticsWorker } from './services/LogisticsWorker';
-import { SettlementWorker } from './services/SettlementWorker';
-import { GovernanceDaemon } from './services/GovernanceDaemon';
-import { Signal } from './types';
+import { Orchestrator } from "./primitives/Orchestrator";
+import { InventoryDaemon } from "./services/InventoryDaemon";
+import { DemandDaemon } from "./services/DemandDaemon";
+import { SupplierOracle } from "./services/SupplierOracle";
+import { ProcurementWorker } from "./services/ProcurementWorker";
+import { LogisticsWorker } from "./services/LogisticsWorker";
+import { SettlementWorker } from "./services/SettlementWorker";
+import { GovernanceDaemon } from "./services/GovernanceDaemon";
+import { Signal } from "./types";
 
 /**
  * SupplyChainFlow - Orchestrates the supply chain processes
@@ -20,7 +19,7 @@ export class SupplyChainFlow extends Orchestrator {
   private logisticsWorker: LogisticsWorker;
   private settlementWorker: SettlementWorker;
   private governanceDaemon: GovernanceDaemon;
-  
+
   private signalBus: Map<string, Signal[]> = new Map();
 
   constructor(
@@ -32,8 +31,8 @@ export class SupplyChainFlow extends Orchestrator {
     settlementWorker: SettlementWorker,
     governanceDaemon: GovernanceDaemon
   ) {
-    super('SupplyChainFlow');
-    
+    super("SupplyChainFlow");
+
     this.inventoryDaemon = inventoryDaemon;
     this.demandDaemon = demandDaemon;
     this.supplierOracle = supplierOracle;
@@ -49,50 +48,50 @@ export class SupplyChainFlow extends Orchestrator {
   private setupFlows(): void {
     // Replenishment flow
     this.registerFlow({
-      name: 'Replenishment',
+      name: "Replenishment",
       steps: [
-        'InventoryDaemon.ReorderSignal',
-        'DemandDaemon.DemandForecast',
-        'SupplierOracle.LeadTimes',
-        'ProcurementWorker.PurchaseOrder',
-        'LogisticsWorker.ShipmentPlan',
-        'SettlementWorker.PaymentInstruction'
+        "InventoryDaemon.ReorderSignal",
+        "DemandDaemon.DemandForecast",
+        "SupplierOracle.LeadTimes",
+        "ProcurementWorker.PurchaseOrder",
+        "LogisticsWorker.ShipmentPlan",
+        "SettlementWorker.PaymentInstruction",
       ],
       execute: async () => {
         await this.executeReplenishmentFlow();
-      }
+      },
     });
 
     // Adaptation flow
     this.registerFlow({
-      name: 'Adaptation',
+      name: "Adaptation",
       steps: [
-        'GovernanceDaemon.PolicyUpdate',
-        'InventoryDaemon',
-        'ProcurementWorker',
-        'LogisticsWorker'
+        "GovernanceDaemon.PolicyUpdate",
+        "InventoryDaemon",
+        "ProcurementWorker",
+        "LogisticsWorker",
       ],
       execute: async () => {
         await this.executeAdaptationFlow();
-      }
+      },
     });
   }
 
   private setupGuarantees(): void {
-    this.addGuarantee('EventualConsistency(Ledger)');
-    this.addGuarantee('RoleIsolation');
-    this.addGuarantee('ReplaceableWorkers');
-    this.addGuarantee('PolicyHotSwap');
+    this.addGuarantee("EventualConsistency(Ledger)");
+    this.addGuarantee("RoleIsolation");
+    this.addGuarantee("ReplaceableWorkers");
+    this.addGuarantee("PolicyHotSwap");
   }
 
   private async executeReplenishmentFlow(): Promise<void> {
     // Collect signals from each step
-    const reorderSignal = this.getSignal('ReorderSignal');
-    const demandForecast = this.getSignal('DemandForecast');
-    const leadTimes = this.getSignal('LeadTimes');
+    const reorderSignal = this.getSignal("ReorderSignal");
+    const demandForecast = this.getSignal("DemandForecast");
+    const leadTimes = this.getSignal("LeadTimes");
 
     if (!reorderSignal || !demandForecast || !leadTimes) {
-      console.log('Waiting for required signals...');
+      console.log("Waiting for required signals...");
       return;
     }
 
@@ -100,35 +99,37 @@ export class SupplyChainFlow extends Orchestrator {
     const purchaseOrder = await this.procurementWorker.execute({
       ReorderSignal: reorderSignal.data,
       DemandForecast: demandForecast.data,
-      LeadTimes: leadTimes.data
+      LeadTimes: leadTimes.data,
     });
 
     // Execute logistics
     const shipmentPlan = await this.logisticsWorker.execute({
       PurchaseOrder: purchaseOrder,
-      Capacity: this.getSignal('Capacity')?.data
+      Capacity: this.getSignal("Capacity")?.data,
     });
 
     // Settlement would happen after delivery proof
-    console.log(`Replenishment flow completed: Order ${purchaseOrder.orderId} -> Shipment ${shipmentPlan.shipmentId}`);
+    console.log(
+      `Replenishment flow completed: Order ${purchaseOrder.orderId} -> Shipment ${shipmentPlan.shipmentId}`
+    );
   }
 
   private async executeAdaptationFlow(): Promise<void> {
-    const policyUpdate = this.getSignal('PolicyUpdate');
-    
+    const policyUpdate = this.getSignal("PolicyUpdate");
+
     if (!policyUpdate) {
-      console.log('No policy update available');
+      console.log("No policy update available");
       return;
     }
 
-    console.log('Applying policy update:', policyUpdate.data);
+    console.log("Applying policy update:", policyUpdate.data);
     // Policy updates would affect service behavior
   }
 
   /**
    * Store a signal in the signal bus
    */
-  public storeSignal(signal: Signal): void {
+  storeSignal(signal: Signal): void {
     if (!this.signalBus.has(signal.type)) {
       this.signalBus.set(signal.type, []);
     }
@@ -140,7 +141,9 @@ export class SupplyChainFlow extends Orchestrator {
    */
   private getSignal(type: string): Signal | undefined {
     const signals = this.signalBus.get(type);
-    return signals && signals.length > 0 ? signals[signals.length - 1] : undefined;
+    return signals && signals.length > 0
+      ? signals[signals.length - 1]
+      : undefined;
   }
 
   /**

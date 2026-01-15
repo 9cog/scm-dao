@@ -1,4 +1,4 @@
-import { LedgerEntry, Commitment } from '../types';
+import { LedgerEntry, Commitment } from "../types";
 
 /**
  * Ledger primitive - shared state, commitments, proofs
@@ -8,7 +8,7 @@ export class Ledger {
   private commitments: Map<string, Commitment> = new Map();
   private subsections: Map<string, Ledger> = new Map();
 
-  constructor(private name: string = 'root') {}
+  constructor(private name: string = "root") {}
 
   /**
    * Write data to ledger
@@ -37,7 +37,7 @@ export class Ledger {
     const commitment: Commitment<T> = {
       id,
       data,
-      state: 'pending',
+      state: "pending",
       timestamp: Date.now(),
     };
     this.commitments.set(id, commitment);
@@ -49,8 +49,8 @@ export class Ledger {
    */
   async commitCommitment(id: string): Promise<void> {
     const commitment = this.commitments.get(id);
-    if (commitment && commitment.state === 'pending') {
-      commitment.state = 'committed';
+    if (commitment && commitment.state === "pending") {
+      commitment.state = "committed";
     }
   }
 
@@ -59,8 +59,8 @@ export class Ledger {
    */
   async failCommitment(id: string): Promise<void> {
     const commitment = this.commitments.get(id);
-    if (commitment && commitment.state === 'pending') {
-      commitment.state = 'failed';
+    if (commitment && commitment.state === "pending") {
+      commitment.state = "failed";
     }
   }
 
@@ -90,10 +90,10 @@ export class Ledger {
  * Static ledger subsections as defined in spec
  */
 export const LedgerSubsections = {
-  Inventory: 'Inventory',
-  Forecasts: 'Forecasts',
-  Commitments: 'Commitments',
-  Logistics: 'Logistics',
-  Financials: 'Financials',
-  All: 'All',
+  Inventory: "Inventory",
+  Forecasts: "Forecasts",
+  Commitments: "Commitments",
+  Logistics: "Logistics",
+  Financials: "Financials",
+  All: "All",
 };

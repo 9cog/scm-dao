@@ -1,5 +1,5 @@
-import { Daemon } from './Daemon';
-import { Worker } from './Worker';
+import { Daemon } from "./Daemon";
+import { Worker } from "./Worker";
 
 /**
  * Supervisor primitive - health, escalation, arbitration
@@ -7,7 +7,10 @@ import { Worker } from './Worker';
 export class Supervisor {
   private name: string;
   private monitoredServices: (Daemon | Worker)[] = [];
-  private failureHandlers: Map<string, ((service: any, error: Error) => void)[]> = new Map();
+  private failureHandlers: Map<
+    string,
+    ((service: any, error: Error) => void)[]
+  > = new Map();
 
   constructor(name: string) {
     this.name = name;
@@ -24,7 +27,7 @@ export class Supervisor {
    * Register failure handler
    */
   onFailure(handler: (service: any, error: Error) => void): void {
-    const key = 'default';
+    const key = "default";
     if (!this.failureHandlers.has(key)) {
       this.failureHandlers.set(key, []);
     }
@@ -35,7 +38,7 @@ export class Supervisor {
    * Handle service failure
    */
   async handleFailure(service: any, error: Error): Promise<void> {
-    const handlers = this.failureHandlers.get('default') || [];
+    const handlers = this.failureHandlers.get("default") || [];
     for (const handler of handlers) {
       handler(service, error);
     }
@@ -44,7 +47,7 @@ export class Supervisor {
   /**
    * Retry a failed operation
    */
-  async retry<T>(operation: () => Promise<T>, maxAttempts: number = 3): Promise<T> {
+  async retry<T>(operation: () => Promise<T>, maxAttempts = 3): Promise<T> {
     let lastError: Error | undefined;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -78,8 +81,8 @@ export class Supervisor {
     console.log(`Escalating to DAO: ${issue}`, context);
   }
 
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  private async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   getName(): string {
