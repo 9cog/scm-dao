@@ -1,0 +1,11 @@
+dist/
+node_modules/
+
+jest.config.js
+tsconfig.json
+package.json
+.eslintrc.json
+webpack.config.js
+
+wasm/src/rs/pkg/
+wasm/src/target/
