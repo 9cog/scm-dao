@@ -62,11 +62,14 @@ export class GovernanceDaemon extends Daemon {
     return (votes.for || 0) > (votes.against || 0);
   }
 
-  injectEvent(event: Event): void {
+  public injectEvent(event: Event): void {
+    if (!this.running) {
+      throw new Error(`Cannot inject event: ${this.name} is not running`);
+    }
     this.handleEvent(event);
   }
 
-  getPolicy(id: string): Policy | undefined {
+  public getPolicy(id: string): Policy | undefined {
     return this.policies.get(id);
   }
 }

@@ -32,7 +32,7 @@ export abstract class Worker<TInput = any, TOutput = any> {
   /**
    * Consume signals
    */
-  consume(...signals: Signal[]): any {
+  consume(...signals: Signal[]): Record<string, any> {
     return this.extractData(signals);
   }
 

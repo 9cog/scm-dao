@@ -63,7 +63,10 @@ export class DemandDaemon extends Daemon {
     return velocity * period * 1.1; // 10% buffer
   }
 
-  injectEvent(event: Event): void {
+  public injectEvent(event: Event): void {
+    if (!this.running) {
+      throw new Error(`Cannot inject event: ${this.name} is not running`);
+    }
     this.handleEvent(event);
   }
 }

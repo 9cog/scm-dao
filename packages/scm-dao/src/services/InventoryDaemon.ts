@@ -69,7 +69,10 @@ export class InventoryDaemon extends Daemon {
   }
 
   // Public method to inject events for testing
-  injectEvent(event: Event): void {
+  public injectEvent(event: Event): void {
+    if (!this.running) {
+      throw new Error(`Cannot inject event: ${this.name} is not running`);
+    }
     this.handleEvent(event);
   }
 }
